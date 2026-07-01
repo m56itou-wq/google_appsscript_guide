@@ -1,0 +1,1057 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Google Apps Script 完全ガイド（初心者向け）</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        hygge: {
+                            bg: '#FAF7F2',       /* リネンホワイト / 優しいペールアイボリー */
+                            card: '#FFFFFF',     /* ホワイト */
+                            text: '#423E3B',     /* チャコールオーク / 暖かみのある墨色 */
+                            woodLight: '#EADFD3',/* 明るいパイン材 / バーチウッド */
+                            woodDark: '#D9C5B2', /* 落ち着いたオーク材 */
+                            accent: '#DEB887',   /* バーリウッド（アクセントカラー） */
+                            accentSoft: '#F3EDE4', /* ふわっとしたベージュ */
+                            sage: '#8FA190',     /* 北欧のセージグリーン（自然を連想させる調和色） */
+                            sageLight: '#EBF0EC',/* 淡いセージグリーン */
+                            gray: '#A9A9A9',     /* ダークグレー */
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['"Segoe UI"', 'Roboto', '"Helvetica Neue"', 'Arial', '"Noto Sans JP"', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+    <!-- Lucide Icons (CDN) -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        /* スムーズスクロール */
+        html {
+            scroll-behavior: smooth;
+        }
+        /* 北欧ミニマルなスクロールバー */
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #FAF7F2;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #D9C5B2;
+            border-radius: 3px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #DEB887;
+        }
+        /* スムーズトランジション */
+        .transition-hygge {
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+    </style>
+</head>
+<body class="bg-hygge-bg text-hygge-text font-sans antialiased selection:bg-hygge-accent/30 selection:text-hygge-text">
+
+    <!-- ヒーローヘッダー (Hygge & Wood ビジュアル) -->
+    <header class="relative overflow-hidden bg-hygge-card border-b border-hygge-woodLight py-12 md:py-20 px-6">
+        <!-- 北欧調アブストラクトウッドサークル装飾 (SVG) -->
+        <div class="absolute right-0 top-0 h-full w-1/3 opacity-20 pointer-events-none hidden md:block">
+            <svg viewBox="0 0 200 200" class="w-full h-full text-hygge-woodLight" fill="currentColor">
+                <path d="M40,-53C54.7,-43.8,71.3,-35.1,77.7,-21.8C84,-8.5,80.1,9.4,72.4,24.4C64.6,39.4,53,51.6,39.2,60.2C25.4,68.7,9.3,73.6,-6.9,71.5C-23.1,69.4,-39.4,60.2,-52.1,47.4C-64.8,34.6,-73.9,18.1,-75.4,1.1C-76.9,-16,-70.8,-33.5,-59.5,-44C-48.2,-54.5,-31.6,-57.9,-16.8,-63.9C-2.1,-69.9,10.7,-78.5,23.1,-75.6C35.5,-72.7,47.4,-58.3,40,-53Z" transform="translate(130, 100)" />
+            </svg>
+        </div>
+        <div class="absolute left-10 top-10 text-hygge-sage/30">
+            <!-- 温かなハーブティー風SVG -->
+            <svg class="w-12 h-12" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M17 8h2a2 2 0 012 2v6a2 2 0 01-2 2h-2v4l-4-4H9a1.994 1.994 0 01-1.414-.586m0 0L3 11l4-4M17 8V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2h2v-4l4 4" />
+            </svg>
+        </div>
+
+        <div class="max-w-5xl mx-auto flex flex-col md:flex-row items-center justify-between gap-8 relative z-10">
+            <div class="space-y-4 max-w-xl">
+                <div class="inline-flex items-center gap-2 bg-hygge-sageLight text-hygge-sage px-3 py-1 rounded-full text-xs font-medium tracking-wider">
+                    <i data-lucide="terminal" class="w-3.5 h-3.5"></i> 初心者向けプログラミングガイド
+                </div>
+                <h1 class="text-3xl md:text-5xl font-normal text-hygge-text tracking-tight leading-tight">
+                    Google Apps Script <br><span class="font-bold text-hygge-accent">完全自動化ガイド</span>
+                </h1>
+                <p class="text-sm md:text-base text-hygge-text/80 leading-relaxed font-light">
+                    「プログラミングは少し難しそう」と思っているあなたへ。<br>
+                    お気に入りのハーブティーを飲みながら、毎日の事務作業をすっきりと自動化する、心豊かなデジタルシフトを始めましょう。
+                </p>
+                <div class="flex items-center gap-4 pt-2">
+                    <span class="text-xs text-hygge-gray flex items-center gap-1">
+                        <i data-lucide="coffee" class="w-3.5 h-3.5"></i> 所要時間 約15分
+                    </span>
+                    <span class="text-xs text-hygge-gray flex items-center gap-1">
+                        <i data-lucide="shield" class="w-3.5 h-3.5"></i> 環境構築不要
+                    </span>
+                </div>
+            </div>
+            
+            <!-- 温かみのある北欧アイコンを配した右側ビジュアル -->
+            <div class="hidden md:flex flex-col items-center bg-[#FAF7F2] p-6 rounded-3xl border border-hygge-woodLight shadow-sm w-72">
+                <div class="relative w-40 h-40 flex items-center justify-center bg-white rounded-2xl shadow-inner border border-hygge-woodLight/50 mb-4">
+                    <svg class="w-20 h-20 text-hygge-sage animate-pulse" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1">
+                        <!-- コマンドと自然の葉の調和 -->
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M8 9l3 3-3 3m5 0h3M3 12a9 9 0 1118 0 9 9 0 01-18 0z" />
+                    </svg>
+                    <span class="absolute top-4 right-4 text-xs flex items-center gap-1 bg-[#FDFBF7] px-2 py-1 rounded-full text-hygge-accent font-medium border border-hygge-woodLight/30">
+                        🕯️ GAS / Script
+                    </span>
+                </div>
+                <p class="text-xs text-center text-hygge-text/70 leading-relaxed font-light">
+                    あなたの代わりに働く小さな妖精（プログラム）を、自分の手でやさしく呼び出してみましょう。
+                </p>
+            </div>
+        </div>
+    </header>
+
+    <!-- メインレイアウト（左に固定追従目次・右にコンテンツ） -->
+    <main class="max-w-7xl mx-auto px-4 md:px-8 py-10 md:py-16 flex flex-col lg:flex-row gap-10">
+        
+        <!-- 左：追従サイドバーナビゲーション (デスクトップのみ表示、モバイルはドロップダウンに) -->
+        <aside class="w-full lg:w-1/4 shrink-0">
+            <!-- モバイル用のシンプルなアコーディオン目次ヘッダー -->
+            <div class="block lg:hidden bg-white border border-hygge-woodLight rounded-2xl p-4 shadow-sm mb-6">
+                <button onclick="toggleMobileMenu()" class="w-full flex items-center justify-between text-hygge-text font-medium">
+                    <span class="flex items-center gap-2 text-sm">
+                        <i data-lucide="menu" class="w-4 h-4 text-hygge-accent"></i> 📚 もくじを開く/閉じる
+                    </span>
+                    <i data-lucide="chevron-down" id="mobile-menu-arrow" class="w-4 h-4 transition-transform duration-300"></i>
+                </button>
+                <div id="mobile-menu-content" class="hidden mt-4 pt-4 border-t border-hygge-woodLight space-y-2 text-sm">
+                    <a href="#about" class="block py-2 px-3 rounded-xl hover:bg-hygge-accentSoft transition-hygge text-hygge-text">1. Google Apps Script とは</a>
+                    <a href="#concepts" class="block py-2 px-3 rounded-xl hover:bg-hygge-accentSoft transition-hygge text-hygge-text">2. GASの基本概念</a>
+                    <a href="#structure" class="block py-2 px-3 rounded-xl hover:bg-hygge-accentSoft transition-hygge text-hygge-text">3. エディタの画面構成</a>
+                    <a href="#sidebar" class="block py-2 px-3 rounded-xl hover:bg-hygge-accentSoft transition-hygge text-hygge-text">4. 左サイドバーの使い方</a>
+                    <a href="#toolbar" class="block py-2 px-3 rounded-xl hover:bg-hygge-accentSoft transition-hygge text-hygge-text">5. 上部ツールバーの使い方</a>
+                    <a href="#practice" class="block py-2 px-3 rounded-xl hover:bg-hygge-accentSoft transition-hygge text-hygge-text">6. 実践的な自動化例</a>
+                    <a href="#faq" class="block py-2 px-3 rounded-xl hover:bg-hygge-accentSoft transition-hygge text-hygge-text">7. よくある質問 (FAQ)</a>
+                    <a href="#roadmap" class="block py-2 px-3 rounded-xl hover:bg-hygge-accentSoft transition-hygge text-hygge-text">8. 学習ロードマップ & リンク</a>
+                </div>
+            </div>
+
+            <!-- デスクトップ用固定サイドバー（スクロール追従） -->
+            <div class="hidden lg:block sticky top-8 bg-white border border-hygge-woodLight rounded-3xl p-6 shadow-sm">
+                <h3 class="text-sm font-semibold text-hygge-gray tracking-widest uppercase mb-4 pb-2 border-b border-hygge-woodLight">
+                    📚 INDEX / 目次
+                </h3>
+                <nav class="space-y-1 text-[13px] font-medium">
+                    <a href="#about" class="flex items-center gap-3 py-2.5 px-4 rounded-xl hover:bg-hygge-accentSoft text-hygge-text transition-hygge">
+                        <span class="w-5 text-center text-hygge-accent">1</span> Google Apps Script とは
+                    </a>
+                    <a href="#concepts" class="flex items-center gap-3 py-2.5 px-4 rounded-xl hover:bg-hygge-accentSoft text-hygge-text transition-hygge">
+                        <span class="w-5 text-center text-hygge-accent">2</span> 基本となる大切な概念
+                    </a>
+                    <a href="#structure" class="flex items-center gap-3 py-2.5 px-4 rounded-xl hover:bg-hygge-accentSoft text-hygge-text transition-hygge">
+                        <span class="w-5 text-center text-hygge-accent">3</span> エディタの全体構成
+                    </a>
+                    <a href="#sidebar" class="flex items-center gap-3 py-2.5 px-4 rounded-xl hover:bg-hygge-accentSoft text-hygge-text transition-hygge">
+                        <span class="w-5 text-center text-hygge-accent">4</span> 左サイドバーの役割
+                    </a>
+                    <a href="#toolbar" class="flex items-center gap-3 py-2.5 px-4 rounded-xl hover:bg-hygge-accentSoft text-hygge-text transition-hygge">
+                        <span class="w-5 text-center text-hygge-accent">5</span> 上部ツールバーの使い方
+                    </a>
+                    <a href="#practice" class="flex items-center gap-3 py-2.5 px-4 rounded-xl hover:bg-hygge-accentSoft text-hygge-text transition-hygge">
+                        <span class="w-5 text-center text-hygge-accent">6</span> 心地よく働く自動化例
+                    </a>
+                    <a href="#faq" class="flex items-center gap-3 py-2.5 px-4 rounded-xl hover:bg-hygge-accentSoft text-hygge-text transition-hygge">
+                        <span class="w-5 text-center text-hygge-accent">7</span> よくある困りごと解決
+                    </a>
+                    <a href="#roadmap" class="flex items-center gap-3 py-2.5 px-4 rounded-xl hover:bg-hygge-accentSoft text-hygge-text transition-hygge">
+                        <span class="w-5 text-center text-hygge-accent">8</span> 学習ロードマップ
+                    </a>
+                </nav>
+
+                <!-- 北欧の暖炉をイメージした温かなウィジット -->
+                <div class="mt-8 pt-6 border-t border-hygge-woodLight text-center">
+                    <div class="inline-flex items-center justify-center p-3 bg-hygge-sageLight text-hygge-sage rounded-full mb-3">
+                        <i data-lucide="sun" class="w-5 h-5"></i>
+                    </div>
+                    <p class="text-[11px] text-hygge-text/75 leading-relaxed font-light">
+                        「小さな工夫をコツコツと」。GASを使えば、今日からあなたのパソコン時間が穏やかな余白に変わります。
+                    </p>
+                </div>
+            </div>
+        </aside>
+
+        <!-- 右：メインコンテンツエリア -->
+        <div class="w-full lg:w-3/4 space-y-16">
+
+            <!-- 1. Google Apps Script とは -->
+            <section id="about" class="scroll-mt-6 space-y-8 bg-white border border-hygge-woodLight rounded-3xl p-6 md:p-10 shadow-sm relative overflow-hidden">
+                <div class="absolute right-0 top-0 h-2 bg-hygge-accent w-full"></div>
+                
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-2xl bg-hygge-accentSoft flex items-center justify-center text-hygge-accent">
+                        <i data-lucide="zap" class="w-5 h-5"></i>
+                    </div>
+                    <div>
+                        <span class="text-xs text-hygge-gray tracking-wider uppercase">SECTION 1</span>
+                        <h2 class="text-2xl font-bold tracking-tight text-hygge-text">Google Apps Script（GAS）とは？</h2>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-12 gap-6 items-center">
+                    <div class="md:col-span-7 space-y-4">
+                        <div class="bg-hygge-bg border-l-4 border-hygge-accent p-4 rounded-r-xl">
+                            <h3 class="font-semibold text-sm text-hygge-text flex items-center gap-2">
+                                🎯 Googleをあなたの指先で自動化するツール
+                            </h3>
+                            <p class="text-xs md:text-sm text-hygge-text/80 leading-relaxed mt-2 font-light">
+                                Google Apps Script（通称：GAS/ギャス）は、Googleが提供する、無料の自動化プログラミングツールです。
+                                世界中で広く使われている「JavaScript」という言葉を使い、Gmail、スプレッドシート、Googleカレンダーなどを繋いで自動で仕事をこなしてくれます。
+                            </p>
+                        </div>
+                    </div>
+                    <!-- 特徴を際立たせるミニ図版 -->
+                    <div class="md:col-span-5 bg-hygge-sageLight/50 border border-hygge-sage/20 p-5 rounded-2xl flex flex-col justify-center text-center">
+                        <span class="text-xs text-hygge-sage font-bold tracking-wider mb-2">RUNNING ENVIRONMENT</span>
+                        <span class="text-3xl font-extrabold text-hygge-sage">Cloud Run</span>
+                        <p class="text-[11px] text-hygge-text/80 mt-2 font-light">
+                            サーバーの準備もパソコンへのインストールも必要なし。ブラウザさえあれば準備完了です。
+                        </p>
+                    </div>
+                </div>
+
+                <!-- 主な特徴 -->
+                <div class="space-y-4">
+                    <h3 class="text-base font-semibold text-hygge-text flex items-center gap-2">
+                        ✨ 主な4つの特徴
+                    </h3>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div class="flex gap-3 p-4 bg-hygge-bg rounded-2xl border border-hygge-woodLight/40 hover:shadow-sm transition-hygge">
+                            <span class="text-xl">🍵</span>
+                            <div>
+                                <h4 class="font-semibold text-xs text-hygge-text">完全無料、制限なし</h4>
+                                <p class="text-[11px] text-hygge-text/75 leading-relaxed mt-1">Googleアカウントを持っていれば、誰でも今すぐに無料で使い始めることができます。</p>
+                            </div>
+                        </div>
+                        <div class="flex gap-3 p-4 bg-hygge-bg rounded-2xl border border-hygge-woodLight/40 hover:shadow-sm transition-hygge">
+                            <span class="text-xl">💻</span>
+                            <div>
+                                <h4 class="font-semibold text-xs text-hygge-text">インストール不要</h4>
+                                <p class="text-[11px] text-hygge-text/75 leading-relaxed mt-1">Excelマクロ（VBA）のように端末環境に依存せず、ブラウザだけで動き、保存も全自動です。</p>
+                            </div>
+                        </div>
+                        <div class="flex gap-3 p-4 bg-hygge-bg rounded-2xl border border-hygge-woodLight/40 hover:shadow-sm transition-hygge">
+                            <span class="text-xl">☁️</span>
+                            <div>
+                                <h4 class="font-semibold text-xs text-hygge-text">自動安全セーブ</h4>
+                                <p class="text-[11px] text-hygge-text/75 leading-relaxed mt-1">作成したコードは自動的にGoogleドライブに安全に保管されます。紛失の心配もありません。</p>
+                            </div>
+                        </div>
+                        <div class="flex gap-3 p-4 bg-hygge-bg rounded-2xl border border-hygge-woodLight/40 hover:shadow-sm transition-hygge">
+                            <span class="text-xl">🌲</span>
+                            <div>
+                                <h4 class="font-semibold text-xs text-hygge-text">JavaScriptがベース</h4>
+                                <p class="text-[11px] text-hygge-text/75 leading-relaxed mt-1">Web業界標準のプログラミング言語が使われているため、ネットに役立つ情報がたっぷり溢れています。</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 何ができるのか？のチェックリスト -->
+                <div class="bg-hygge-accentSoft/30 rounded-2xl p-6 border border-hygge-accent/20">
+                    <h3 class="text-sm font-semibold text-hygge-text mb-4 flex items-center gap-2">
+                        💡 GASで可能になる「毎日のスマートな時間」
+                    </h3>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-3 text-xs md:text-sm">
+                        <div class="flex items-start gap-2 text-hygge-text/90">
+                            <i data-lucide="check-circle" class="w-4 h-4 text-hygge-sage shrink-0 mt-0.5"></i>
+                            <div><strong>毎日のタスクを完全自動化</strong> (毎朝決まったメールを確認、定期報告)</div>
+                        </div>
+                        <div class="flex items-start gap-2 text-hygge-text/90">
+                            <i data-lucide="check-circle" class="w-4 h-4 text-hygge-sage shrink-0 mt-0.5"></i>
+                            <div><strong>サービス同士を優しく連結</strong> (問い合わせフォームからスプレッドシートへ自動入力)</div>
+                        </div>
+                        <div class="flex items-start gap-2 text-hygge-text/90">
+                            <i data-lucide="check-circle" class="w-4 h-4 text-hygge-sage shrink-0 mt-0.5"></i>
+                            <div><strong>自分だけの計算ルール（関数）を創る</strong> (スプレッドシートにオリジナルの計算を追加)</div>
+                        </div>
+                        <div class="flex items-start gap-2 text-hygge-text/90">
+                            <i data-lucide="check-circle" class="w-4 h-4 text-hygge-sage shrink-0 mt-0.5"></i>
+                            <div><strong>シンプルな申請Webアプリを構築</strong> (社内やサークル用のフォームと連動システム)</div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 2. 基本概念 -->
+            <section id="concepts" class="scroll-mt-6 space-y-8 bg-white border border-hygge-woodLight rounded-3xl p-6 md:p-10 shadow-sm">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-2xl bg-hygge-accentSoft flex items-center justify-center text-hygge-accent">
+                        <i data-lucide="layers" class="w-5 h-5"></i>
+                    </div>
+                    <div>
+                        <span class="text-xs text-hygge-gray tracking-wider uppercase">SECTION 2</span>
+                        <h2 class="text-2xl font-bold tracking-tight text-hygge-text">基本概念と最初のコード</h2>
+                    </div>
+                </div>
+
+                <p class="text-xs md:text-sm text-hygge-text/80 leading-relaxed font-light">
+                    プログラミングを始める前に、基本となる少数の言葉を仲間に迎え入れましょう。これだけで全体のイメージがぐっとつかみやすくなります。
+                </p>
+
+                <!-- 重要な用語解説 -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div class="bg-[#FAF7F2]/50 border border-hygge-woodLight p-4 rounded-2xl">
+                        <span class="text-xs font-bold text-hygge-accent block mb-1">🎁 関数（かんすう）</span>
+                        <p class="text-xs text-hygge-text/80 font-light leading-relaxed">
+                            命令をひとつに束ねた「プログラムのレシピ」です。<code>function myName() { ... }</code> のように分かりやすい名前をつけてあげます。
+                        </p>
+                    </div>
+                    <div class="bg-[#FAF7F2]/50 border border-hygge-woodLight p-4 rounded-2xl">
+                        <span class="text-xs font-bold text-hygge-accent block mb-1">⏱️ トリガー</span>
+                        <p class="text-xs text-hygge-text/80 font-light leading-relaxed">
+                            「毎日朝8時になったら」「フォームが届いたら」など、プログラムを自動的に叩き起こして動かす仕組みのことです。
+                        </p>
+                    </div>
+                    <div class="bg-[#FAF7F2]/50 border border-hygge-woodLight p-4 rounded-2xl">
+                        <span class="text-xs font-bold text-hygge-accent block mb-1">📑 ログ & デバッグ</span>
+                        <p class="text-xs text-hygge-text/80 font-light leading-relaxed">
+                            「ログ」はスクリプトからの日記のような実行記録。「デバッグ」は、その記録を見てエラーの原因（虫＝バグ）を取り除く作業です。
+                        </p>
+                    </div>
+                    <div class="bg-[#FAF7F2]/50 border border-hygge-woodLight p-4 rounded-2xl">
+                        <span class="text-xs font-bold text-hygge-accent block mb-1">🚀 デプロイ</span>
+                        <p class="text-xs text-hygge-text/80 font-light leading-relaxed">
+                            完成したスクリプトを「一般公開して、他の人や外部システムからも呼び出せる状態」に準備してあげる手続きです。
+                        </p>
+                    </div>
+                </div>
+
+                <!-- 最初のコード -->
+                <div class="bg-hygge-text text-white rounded-2xl p-6 space-y-4 shadow-inner">
+                    <div class="flex items-center justify-between border-b border-white/10 pb-2">
+                        <span class="text-xs text-hygge-accent font-mono">myFirstFunction.gs</span>
+                        <span class="text-[10px] bg-white/10 px-2 py-0.5 rounded font-mono">JavaScript</span>
+                    </div>
+                    <pre class="font-mono text-xs md:text-sm leading-relaxed overflow-x-auto text-[#EADFD3]">
+<span class="text-pink-400">function</span> <span class="text-blue-300">myFirstFunction</span>() {
+  <span class="text-gray-400">// Logger.log は、実行ログに文字を出力する、最も基本的な命令です</span>
+  <span class="text-green-300">Logger</span>.<span class="text-blue-300">log</span>(<span class="text-yellow-200">"Hello, Google Apps Script!"</span>);
+}</pre>
+                </div>
+
+                <!-- 実行方法の説明 -->
+                <div class="bg-hygge-sageLight/40 border border-hygge-sage/20 rounded-2xl p-5 text-xs md:text-sm">
+                    <h4 class="font-bold text-hygge-sage mb-2 flex items-center gap-1.5">
+                        <i data-lucide="play-circle" class="w-4 h-4"></i> この関数の動かし方
+                    </h4>
+                    <ol class="list-decimal list-inside space-y-1 text-hygge-text/85 font-light">
+                        <li>上部のツールバーから実行したい関数 <strong>「myFirstFunction」</strong> を選択。</li>
+                        <li><strong>「▶️ 実行」</strong> ボタンをクリック。</li>
+                        <li>画面の下に「実行ログ」がスッと開き、数秒後に <code>Hello, Google Apps Script!</code> と表示されれば無事大成功です！</li>
+                    </ol>
+                </div>
+            </section>
+
+            <!-- 3. エディタの画面構成 (インタラクティブ) -->
+            <section id="structure" class="scroll-mt-6 space-y-8 bg-white border border-hygge-woodLight rounded-3xl p-6 md:p-10 shadow-sm">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-2xl bg-hygge-accentSoft flex items-center justify-center text-hygge-accent">
+                        <i data-lucide="layout-template" class="w-5 h-5"></i>
+                    </div>
+                    <div>
+                        <span class="text-xs text-hygge-gray tracking-wider uppercase">SECTION 3</span>
+                        <h2 class="text-2xl font-bold tracking-tight text-hygge-text">エディタの画面構成</h2>
+                    </div>
+                </div>
+
+                <p class="text-xs md:text-sm text-hygge-text/80 leading-relaxed font-light">
+                    GASのエディタ画面は、温かな木の作業机に道具をすっきりと並べたような配置をしています。
+                    各エリアをクリックするかカーソルを合わせて、仕事仲間たちの名前と役割を覗いてみましょう。
+                </p>
+
+                <!-- 仮想GASエディタUIシミュレーター -->
+                <div class="space-y-4">
+                    <div class="text-center md:text-left">
+                        <span class="inline-flex items-center gap-1 bg-hygge-sage/10 text-hygge-sage px-3 py-1 rounded-full text-xs font-semibold">
+                            💡 オレンジの枠に触れる（またはタップ）と、下部の説明が動的に切り替わります！
+                        </span>
+                    </div>
+
+                    <!-- 仮想ブラウザUI -->
+                    <div class="border border-hygge-woodLight rounded-2xl bg-[#282a36] shadow-lg overflow-hidden text-xs text-gray-200 font-mono transition-all duration-300">
+                        <!-- GASエディタヘッダー -->
+                        <div class="bg-[#1f202a] px-4 py-3 border-b border-[#343746] flex items-center justify-between">
+                            <div class="flex items-center gap-2">
+                                <span class="w-3 h-3 rounded-full bg-red-400"></span>
+                                <span class="w-3 h-3 rounded-full bg-yellow-400"></span>
+                                <span class="w-3 h-3 rounded-full bg-green-400"></span>
+                                <span class="font-bold text-gray-300 ml-2 text-[11px] flex items-center gap-1.5">
+                                    <i data-lucide="file-code" class="w-3.5 h-3.5 text-hygge-accent"></i> 毎日の自動通知プロジェクト
+                                </span>
+                            </div>
+                            <div class="flex items-center gap-2">
+                                <span class="bg-hygge-accent hover:bg-hygge-accent/80 text-hygge-text px-2.5 py-1 rounded text-[10px] font-bold cursor-pointer font-sans transition-hygge shadow-sm">
+                                    デプロイ ▼
+                                </span>
+                            </div>
+                        </div>
+
+                        <!-- 仮想エディタ本体 -->
+                        <div class="flex flex-col md:flex-row h-[360px] relative">
+                            
+                            <!-- A. 左サイドバー -->
+                            <div onmouseover="highlightGasArea('gas-sidebar')" class="w-full md:w-[15%] bg-[#1f202a] py-3 px-2 border-r border-[#343746] flex flex-col justify-between hover:bg-[#2c2e3e] cursor-pointer transition-all duration-200 border-2 border-transparent hover:border-hygge-accent group relative">
+                                <div class="space-y-4 text-center">
+                                    <div class="flex flex-col items-center gap-3 text-gray-400">
+                                        <div class="p-1.5 hover:bg-[#343746] hover:text-white rounded-lg transition-hygge" title="プロジェクト情報"><i data-lucide="info" class="w-4 h-4 text-hygge-accent"></i></div>
+                                        <div class="p-1.5 bg-[#343746] text-white rounded-lg" title="エディタファイル"><i data-lucide="code-2" class="w-4 h-4"></i></div>
+                                        <div class="p-1.5 hover:bg-[#343746] hover:text-white rounded-lg transition-hygge" title="実行履歴"><i data-lucide="history" class="w-4 h-4"></i></div>
+                                        <div class="p-1.5 hover:bg-[#343746] hover:text-white rounded-lg transition-hygge" title="トリガー設定"><i data-lucide="alarm-clock" class="w-4 h-4"></i></div>
+                                        <div class="p-1.5 hover:bg-[#343746] hover:text-white rounded-lg transition-hygge" title="プロジェクト設定"><i data-lucide="settings-2" class="w-4 h-4"></i></div>
+                                    </div>
+                                </div>
+                                <div class="text-center text-gray-500">
+                                    <i data-lucide="settings" class="w-4 h-4 mx-auto cursor-pointer hover:text-white"></i>
+                                </div>
+                                <span class="absolute top-1 left-1 bg-hygge-accent text-hygge-text px-1 rounded text-[8px] font-bold opacity-0 group-hover:opacity-100 transition-opacity">左サイド</span>
+                            </div>
+
+                            <!-- B. ファイルパネル -->
+                            <div onmouseover="highlightGasArea('gas-files')" class="w-full md:w-[20%] bg-[#222430] p-3 border-r border-[#343746] hover:bg-[#2e3142] cursor-pointer transition-all duration-200 border-2 border-transparent hover:border-hygge-accent group relative">
+                                <div class="flex items-center justify-between text-[10px] text-gray-400 mb-2 font-sans">
+                                    <span>ファイル</span>
+                                    <span class="text-hygge-accent text-xs font-bold">+</span>
+                                </div>
+                                <div class="space-y-1.5 text-[11px] font-sans">
+                                    <div class="flex items-center gap-1.5 py-1 px-1.5 rounded bg-[#343746] text-white"><span class="text-yellow-500">gs</span> main.gs</div>
+                                    <div class="flex items-center gap-1.5 py-1 px-1.5 text-gray-400 hover:text-white"><span class="text-yellow-500">gs</span> utilities.gs</div>
+                                    <div class="flex items-center gap-1.5 py-1 px-1.5 text-gray-400 hover:text-white"><span class="text-blue-400">html</span> dialog.html</div>
+                                </div>
+                                <span class="absolute top-1 left-1 bg-hygge-accent text-hygge-text px-1 rounded text-[8px] font-bold opacity-0 group-hover:opacity-100 transition-opacity">ファイル</span>
+                            </div>
+
+                            <!-- C. 上部ツールバー ＆ コードエディタ（右側一体） -->
+                            <div class="w-full md:w-[65%] flex flex-col">
+                                <!-- 上部ツールバー -->
+                                <div onmouseover="highlightGasArea('gas-toolbar')" class="p-2 border-b border-[#343746] bg-[#1f202a] flex items-center gap-3 hover:bg-[#2c2e3e] cursor-pointer transition-all duration-200 border-2 border-transparent hover:border-hygge-accent group relative">
+                                    <div class="flex items-center gap-1 bg-[#343746] text-white px-2 py-0.5 rounded text-[10px]">
+                                        <span>main</span> <i data-lucide="chevron-down" class="w-3 h-3 text-hygge-accent"></i>
+                                    </div>
+                                    <div class="flex items-center gap-2 text-xs font-sans">
+                                        <button class="flex items-center gap-1 text-green-400 hover:text-white"><i data-lucide="play" class="w-3 h-3"></i> 実行</button>
+                                        <button class="flex items-center gap-1 text-blue-400 hover:text-white"><i data-lucide="bug" class="w-3 h-3"></i> デバッグ</button>
+                                    </div>
+                                    <span class="absolute top-1 right-1 bg-hygge-accent text-hygge-text px-1 rounded text-[8px] font-bold opacity-0 group-hover:opacity-100 transition-opacity">ツールバー</span>
+                                </div>
+
+                                <!-- コードエディタ本体 -->
+                                <div onmouseover="highlightGasArea('gas-editor')" class="p-4 flex-1 bg-[#282a36] hover:bg-[#323544] cursor-pointer transition-all duration-200 border-2 border-transparent hover:border-hygge-accent group relative overflow-y-auto">
+                                    <div class="flex gap-4 text-xs font-mono">
+                                        <div class="text-[#6272a4] text-right select-none w-4">
+                                            <div>1</div><div>2</div><div>3</div><div>4</div>
+                                        </div>
+                                        <div class="flex-1 text-gray-300">
+                                            <div><span class="text-pink-500">function</span> <span class="text-green-400">main</span>() {</div>
+                                            <div class="pl-4 text-[#6272a4]">// あなたのコードをここに書きます</div>
+                                            <div class="pl-4"><span class="text-yellow-400">Logger</span>.log(<span class="text-orange-400">"お疲れ様でした！"</span>);</div>
+                                            <div>}</div>
+                                        </div>
+                                    </div>
+                                    <span class="absolute top-1 right-1 bg-hygge-accent text-hygge-text px-1 rounded text-[8px] font-bold opacity-0 group-hover:opacity-100 transition-opacity">コードエディタ</span>
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+
+                    <!-- エディタ説明詳細表示 -->
+                    <div id="gas-description-panel" class="bg-hygge-accentSoft/40 border border-hygge-woodLight rounded-2xl p-5 transition-all duration-300">
+                        <div id="gas-desc-default">
+                            <h4 class="font-bold text-sm text-hygge-text flex items-center gap-1.5 mb-1">
+                                🖱️ 上のエディタUIの各エリアをホバー（タップ）してください
+                            </h4>
+                            <p class="text-xs text-hygge-text/85 leading-relaxed font-light">
+                                選んだパーツの役割を、北欧インテリアを整理するようにお答えします。
+                            </p>
+                        </div>
+                        <div id="gas-desc-sidebar" class="hidden">
+                            <h4 class="font-bold text-sm text-hygge-accent flex items-center gap-1.5 mb-2">
+                                <i data-lucide="sidepanel-left" class="w-4 h-4"></i> 左サイドバー
+                            </h4>
+                            <p class="text-xs text-hygge-text/85 leading-relaxed font-light">
+                                スクリプト全体の「モード切替スイッチ」です。ファイル管理、自動で動く「トリガー」の設定、過去の実行ログを見る画面などへ、いつでもここからひとっ飛びできます。
+                            </p>
+                        </div>
+                        <div id="gas-desc-files" class="hidden">
+                            <h4 class="font-bold text-sm text-hygge-accent flex items-center gap-1.5 mb-2">
+                                <i data-lucide="files" class="w-4 h-4"></i> ファイルパネル
+                            </h4>
+                            <p class="text-xs text-hygge-text/85 leading-relaxed font-light">
+                                プロジェクトに入っているすべての引き出し（プログラムファイル）です。コードが長くなってきたら、<code>utilities.gs</code>のようにファイルを分割してきれいに整理整頓しましょう。
+                            </p>
+                        </div>
+                        <div id="gas-desc-toolbar" class="hidden">
+                            <h4 class="font-bold text-sm text-hygge-accent flex items-center gap-1.5 mb-2">
+                                <i data-lucide="play" class="w-4 h-4"></i> 上部ツールバー
+                            </h4>
+                            <p class="text-xs text-hygge-text/85 leading-relaxed font-light">
+                                スクリプトを実行するための「指揮棒」です。動かしたい特定の関数を選択し、横の「▶️ 実行」を押すだけで、プログラムが即座にパタパタと走り出します。
+                            </p>
+                        </div>
+                        <div id="gas-desc-editor" class="hidden">
+                            <h4 class="font-bold text-sm text-hygge-accent flex items-center gap-1.5 mb-2">
+                                <i data-lucide="pen-tool" class="w-4 h-4"></i> コードエディタ
+                            </h4>
+                            <p class="text-xs text-hygge-text/85 leading-relaxed font-light">
+                                メインとなる「キャンバス（作業机）」です。ここにあなたの言葉でレシピ（関数）を書いていきます。文字の色分け（シンタックスハイライト）や、エラーを自動で赤線で警告するサポート機能が付いています。
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 4. 左サイドバーの使い方 -->
+            <section id="sidebar" class="scroll-mt-6 space-y-8 bg-white border border-hygge-woodLight rounded-3xl p-6 md:p-10 shadow-sm">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-2xl bg-hygge-accentSoft flex items-center justify-center text-hygge-accent">
+                        <i data-lucide="menu-square" class="w-5 h-5"></i>
+                    </div>
+                    <div>
+                        <span class="text-xs text-hygge-gray tracking-wider uppercase">SECTION 4</span>
+                        <h2 class="text-2xl font-bold tracking-tight text-hygge-text">左サイドバーの使い方</h2>
+                    </div>
+                </div>
+
+                <p class="text-xs md:text-sm text-hygge-text/80 leading-relaxed font-light">
+                    左サイドバーをうまく活用することで、プログラムのデバッグ（見直し）や、自動実行をすべて手中で管理できるようになります。
+                </p>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <!-- ファイル管理パネル -->
+                    <div class="bg-hygge-bg/50 border border-hygge-woodLight p-5 rounded-2xl space-y-3">
+                        <span class="text-xs font-bold text-hygge-accent flex items-center gap-1.5">
+                            <i data-lucide="folder-git" class="w-4 h-4"></i> 📁 ファイル管理（◀▶ パネル）
+                        </span>
+                        <p class="text-xs text-hygge-text/80 leading-relaxed font-light">
+                            新しく「.gs」スクリプトを作ったり、Web用の「.html」を追加してデザインUIを作ったりできます。
+                        </p>
+                        <div class="bg-white p-3 rounded-xl border border-hygge-woodLight/30 text-[10px] space-y-1">
+                            <div class="text-hygge-gray font-bold">📂 プロジェクト整理の目安</div>
+                            <div class="text-hygge-text/70">・<code>main.gs</code> : 本番のメール・転記処理</div>
+                            <div class="text-hygge-text/70">・<code>utilities.gs</code> : 日付計算や共通の部品</div>
+                        </div>
+                    </div>
+
+                    <!-- 実行履歴 -->
+                    <div class="bg-hygge-bg/50 border border-hygge-woodLight p-5 rounded-2xl space-y-3">
+                        <span class="text-xs font-bold text-hygge-accent flex items-center gap-1.5">
+                            <i data-lucide="history" class="w-4 h-4"></i> 🕐 実行履歴
+                        </span>
+                        <p class="text-xs text-hygge-text/80 leading-relaxed font-light">
+                            過去に実行されたトリガーや手動スクリプトの成否を、リストで一覧確認。エラーが出た際、ここが一番の調査拠点になります。
+                        </p>
+                        <div class="bg-white p-3 rounded-xl border border-hygge-woodLight/30 text-[10px] space-y-1 font-mono">
+                            <div class="text-green-600">✓ 成功 (10:30) - checkEmails() 2.5s</div>
+                            <div class="text-red-500">✗ 失敗 (10:25) - sendMail() Error: defined</div>
+                        </div>
+                    </div>
+
+                    <!-- トリガー管理（最重要） -->
+                    <div class="bg-hygge-bg/50 border border-hygge-woodLight p-5 rounded-2xl space-y-3 md:col-span-2">
+                        <span class="text-xs font-bold text-hygge-accent flex items-center gap-1.5">
+                            <i data-lucide="clock" class="w-4 h-4"></i> ⏱️ トリガー管理（自動実行の魔法）
+                        </span>
+                        <p class="text-xs text-hygge-text/80 leading-relaxed font-light">
+                            トリガーを設定することで、あなたの代わりにGASが24時間体制で、完全放置・自動で働いてくれるようになります。
+                        </p>
+                        
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2">
+                            <div class="bg-white p-3.5 rounded-xl border border-hygge-woodLight/40 text-xs">
+                                <span class="font-bold text-hygge-sage">⏰ 時間ベーストリガー</span>
+                                <p class="text-[11px] text-hygge-text/70 mt-1">「毎週月曜日の朝9時」「1時間ごと」のように、決まった時間・スケジュールで自動運転させます。</p>
+                            </div>
+                            <div class="bg-white p-3.5 rounded-xl border border-hygge-woodLight/40 text-xs">
+                                <span class="font-bold text-hygge-sage">🎯 イベントベーストリガー</span>
+                                <p class="text-[11px] text-hygge-text/70 mt-1">「Googleフォームに回答が送信されたとき」「スプレッドシートの値を編集したとき」に即時に稼働します。</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- プロジェクト設定とプロパティ -->
+                    <div class="bg-hygge-bg/50 border border-hygge-woodLight p-5 rounded-2xl space-y-3 md:col-span-2">
+                        <span class="text-xs font-bold text-hygge-accent flex items-center gap-1.5">
+                            <i data-lucide="database" class="w-4 h-4"></i> ≡ プロジェクト設定 & 鍵（API KEY）の保護
+                        </span>
+                        <p class="text-xs text-hygge-text/80 leading-relaxed font-light">
+                            「パスワードや外部APIの認証キー」はコード内に直接書くと、他人に誤って共有した時に漏洩してしまいます。
+                            そこで、安全に秘密の鍵を隠すための引き出しが <strong>「スクリプトプロパティ」</strong> です。
+                        </p>
+                        
+                        <!-- プロパティの取得コード例 -->
+                        <div class="bg-hygge-text text-[#EADFD3] p-4 rounded-xl font-mono text-xs overflow-x-auto">
+                            <span class="text-gray-400">// スクリプトプロパティから安全にAPIキーを取得する例</span>
+                            <br><span class="text-pink-400">const</span> props = <span class="text-green-300">PropertiesService</span>.getScriptProperties();
+                            <br><span class="text-pink-400">const</span> apiKey = props.getProperty(<span class="text-yellow-200">"API_KEY"</span>);
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 5. 上部ツールバーの使い方 -->
+            <section id="toolbar" class="scroll-mt-6 space-y-8 bg-white border border-hygge-woodLight rounded-3xl p-6 md:p-10 shadow-sm">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-2xl bg-hygge-accentSoft flex items-center justify-center text-hygge-accent">
+                        <i data-lucide="wrench" class="w-5 h-5"></i>
+                    </div>
+                    <div>
+                        <span class="text-xs text-hygge-gray tracking-wider uppercase">SECTION 5</span>
+                        <h2 class="text-2xl font-bold tracking-tight text-hygge-text">上部ツールバーの使い方</h2>
+                    </div>
+                </div>
+
+                <p class="text-xs md:text-sm text-hygge-text/80 leading-relaxed font-light">
+                    ツールバーは、あなたが書いたプログラムを優しく手助けする道具箱です。
+                </p>
+
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <div class="border border-hygge-woodLight p-5 rounded-2xl text-center space-y-2">
+                        <span class="text-2xl">▶️</span>
+                        <h3 class="font-bold text-xs text-hygge-text">実行（Run）</h3>
+                        <p class="text-[11px] text-hygge-text/80 leading-relaxed font-light">
+                            選んだ関数をその場でスタート。プログラムに命が吹き込まれる瞬間です。
+                        </p>
+                    </div>
+                    <div class="border border-hygge-woodLight p-5 rounded-2xl text-center space-y-2">
+                        <span class="text-2xl">🐛</span>
+                        <h3 class="font-bold text-xs text-hygge-text">デバッグ（Debug）</h3>
+                        <p class="text-[11px] text-hygge-text/80 leading-relaxed font-light">
+                            コードの途中（ブレークポイント）で一時停止させ、1行ずつ変数の中身を確認しながら細かく動かす高度な診断機です。
+                        </p>
+                    </div>
+                    <div class="border border-hygge-woodLight p-5 rounded-2xl text-center space-y-2">
+                        <span class="text-2xl">📊</span>
+                        <h3 class="font-bold text-xs text-hygge-text">実行ログ（Logs）</h3>
+                        <p class="text-[11px] text-hygge-text/80 leading-relaxed font-light">
+                            <code>Logger.log()</code> で送られた「処理の経過メモ」を確認できます。何件メールを送ったかなど、進捗を教えてくれます。
+                        </p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 6. 実践例 -->
+            <section id="practice" class="scroll-mt-6 space-y-8 bg-white border border-hygge-woodLight rounded-3xl p-6 md:p-10 shadow-sm relative overflow-hidden">
+                <div class="absolute right-0 top-0 h-2 bg-hygge-sage w-full"></div>
+                
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-2xl bg-hygge-sageLight flex items-center justify-center text-hygge-sage">
+                        <i data-lucide="book-open-check" class="w-5 h-5"></i>
+                    </div>
+                    <div>
+                        <span class="text-xs text-hygge-gray tracking-wider uppercase">SECTION 6</span>
+                        <h2 class="text-2xl font-bold tracking-tight text-hygge-text">暮らしと仕事を支える3つの実践例</h2>
+                    </div>
+                </div>
+
+                <p class="text-xs md:text-sm text-hygge-text/80 leading-relaxed font-light">
+                    実際に明日から職場で役立つGASスクリプトのひな形をご用意しました。
+                    ハーブの温かいお茶を選ぶように、使いたいレシピを選んでエディタへ連れて帰ってください。
+                </p>
+
+                <!-- 実践例タブ切り替え -->
+                <div class="space-y-6">
+                    <div class="flex flex-wrap gap-2 border-b border-hygge-woodLight pb-2">
+                        <button onclick="switchGasTab('gas1')" id="tab-gas1" class="gas-tab-btn px-4 py-2 text-xs font-semibold rounded-xl bg-hygge-accent text-white transition-hygge shadow-sm">
+                            📧 1. 毎朝の重要メール自動チェック
+                        </button>
+                        <button onclick="switchGasTab('gas2')" id="tab-gas2" class="gas-tab-btn px-4 py-2 text-xs font-semibold rounded-xl bg-hygge-bg text-hygge-text/70 hover:bg-hygge-accentSoft transition-hygge">
+                            📊 2. シート独自の温度変換関数
+                        </button>
+                        <button onclick="switchGasTab('gas3')" id="tab-gas3" class="gas-tab-btn px-4 py-2 text-xs font-semibold rounded-xl bg-hygge-bg text-hygge-text/70 hover:bg-hygge-accentSoft transition-hygge">
+                            📝 3. フォーム回答お礼自動メール
+                        </button>
+                    </div>
+
+                    <!-- タブの中身 -->
+                    <div id="gas-tab-container" class="space-y-4">
+                        
+                        <!-- 例1 -->
+                        <div id="content-gas1" class="gas-tab-panel space-y-4">
+                            <div class="bg-hygge-bg/40 border border-hygge-woodLight p-5 rounded-2xl space-y-3">
+                                <h4 class="font-bold text-sm text-hygge-text">🎯 毎朝8時に「重要」メールが溜まっているかチェックして超過通知</h4>
+                                
+                                <div class="bg-hygge-text text-[#EADFD3] p-5 rounded-xl font-mono text-xs md:text-sm overflow-x-auto space-y-1">
+                                    <div><span class="text-pink-400">function</span> <span class="text-green-300">checkEmailsAndNotify2</span>() {</div>
+                                    <div class="pl-4 text-gray-400">// 1. Gmailから「重要」ラベルの付いたスレッドを検索</div>
+                                    <div class="pl-4"><span class="text-pink-400">const</span> threads = <span class="text-green-300">GmailApp</span>.search(<span class="text-yellow-200">'label:重要'</span>);</div>
+                                    <div class="pl-4"></div>
+                                    <div class="pl-4 text-gray-400">// 2. スレッド数（メール件数）をログに保存</div>
+                                    <div class="pl-4"><span class="text-green-300">Logger</span>.log(<span class="text-yellow-200">"重要な未処理メール: "</span> + threads.length + <span class="text-yellow-200">"件"</span>);</div>
+                                    <div class="pl-4"></div>
+                                    <div class="pl-4 text-gray-400">// 3. もし5件以上溜まっていたら、あなたのアドレスへ通知</div>
+                                    <div class="pl-4"><span class="text-pink-400">if</span> (threads.length >= <span class="text-orange-400">5</span>) {</div>
+                                    <div class="pl-8"><span class="text-green-300">GmailApp</span>.sendEmail(</div>
+                                    <div class="pl-12"><span class="text-yellow-200">"your-email@example.com"</span>,</div>
+                                    <div class="pl-12"><span class="text-yellow-200">"【GAS警告】重要なメールがたまっています"</span>,</div>
+                                    <div class="pl-12"><span class="text-yellow-200">"重要な未処理メールが"</span> + threads.length + <span class="text-yellow-200">"件に達しました。確認しましょう！"</span></div>
+                                    <div class="pl-8">);</div>
+                                    <div class="pl-4">}</div>
+                                    <div>}</div>
+                                </div>
+
+                                <div class="bg-hygge-sageLight/50 p-4 rounded-xl border border-hygge-sage/20 text-xs text-hygge-text/90 font-light space-y-2">
+                                    <strong class="text-hygge-sage">🕰️ トリガー登録のススメ：</strong>
+                                    <p>エディタの左メニュー「⏱️」を開き、この「<code>checkEmailsAndNotify2</code>」を選択。実行間隔を「時間ベース ＞ 日ごと ＞ 午前8時〜9時」で保存すれば、パソコンを閉じていても毎朝自動でGmailをパトロールしてくれます。</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 例2 -->
+                        <div id="content-gas2" class="gas-tab-panel hidden space-y-4">
+                            <div class="bg-hygge-bg/40 border border-hygge-woodLight p-5 rounded-2xl space-y-3">
+                                <h4 class="font-bold text-sm text-hygge-text">🎯 セルの中で「=CELSIUS_TO_FAHRENHEIT(A1)」と入力して温度を変換</h4>
+                                
+                                <div class="bg-hygge-text text-[#EADFD3] p-5 rounded-xl font-mono text-xs md:text-sm overflow-x-auto space-y-1">
+                                    <div><span class="text-gray-400">/**</span></div>
+                                    <div><span class="text-gray-400"> * 摂氏(℃)を華氏(℉)に自動で変換するカスタム関数です</span></div>
+                                    <div><span class="text-gray-400"> * @customfunction</span></div>
+                                    <div><span class="text-gray-400"> */</span></div>
+                                    <div><span class="text-pink-400">function</span> <span class="text-green-300">CELSIUS_TO_FAHRENHEIT</span>(celsius) {</div>
+                                    <div class="pl-4 text-gray-400">// 摂氏の数値を引数で受け取り、計算式に入れて返却</div>
+                                    <div class="pl-4"><span class="text-pink-400">return</span> (celsius * <span class="text-orange-400">9</span>/<span class="text-orange-400">5</span>) + <span class="text-orange-400">32</span>;</div>
+                                    <div>}</div>
+                                </div>
+
+                                <div class="bg-hygge-sageLight/50 p-4 rounded-xl border border-hygge-sage/20 text-xs text-hygge-text/90 font-light space-y-1">
+                                    <strong class="text-hygge-sage">🍀 スプレッドシート側の使い方：</strong>
+                                    <p>1. スプレッドシートを開き、セルに <code>0</code> を入力（例：セルA1）。</p>
+                                    <p>2. 隣のセルに <code>=CELSIUS_TO_FAHRENHEIT(A1)</code> と入力してエンター。</p>
+                                    <p>3. するとセルに <code>32</code> と表示されます。あなた専用のオリジナル計算関数の出来上がりです！</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 例3 -->
+                        <div id="content-gas3" class="gas-tab-panel hidden space-y-4">
+                            <div class="bg-hygge-bg/40 border border-hygge-woodLight p-5 rounded-2xl space-y-3">
+                                <h4 class="font-bold text-sm text-hygge-text">🎯 Googleフォーム送信直後にお客さまに自動お礼メールを自動配信</h4>
+                                
+                                <div class="bg-hygge-text text-[#EADFD3] p-5 rounded-xl font-mono text-xs md:text-sm overflow-x-auto space-y-1">
+                                    <div><span class="text-pink-400">function</span> <span class="text-green-300">onFormSubmit</span>(e) {</div>
+                                    <div class="pl-4 text-gray-400">// 1. 送信イベントデータ(e)から送信したユーザーのメールを取得</div>
+                                    <div class="pl-4"><span class="text-pink-400">const</span> email = e.response.getRespondentEmail();</div>
+                                    <div class="pl-4"></div>
+                                    <div class="pl-4 text-gray-400">// 2. 即座にお客さまにお礼のメールを自動配信</div>
+                                    <div class="pl-4"><span class="text-green-300">GmailApp</span>.sendEmail(</div>
+                                    <div class="pl-8">email,</div>
+                                    <div class="pl-8"><span class="text-yellow-200">"【受付完了】フォームへのご送信ありがとうございました"</span>,</div>
+                                    <div class="pl-8"><span class="text-yellow-200">"お世話になっております。\n\nお送りいただいた内容を受付いたしました。\n確認後、担当者より改めてご連絡申し上げます。"</span></div>
+                                    <div class="pl-4">);</div>
+                                    <div>}</div>
+                                </div>
+
+                                <div class="bg-hygge-sageLight/50 p-4 rounded-xl border border-hygge-sage/20 text-xs text-hygge-text/90 font-light space-y-1">
+                                    <strong class="text-hygge-sage">💡 動かすための大切なトリガー条件：</strong>
+                                    <p>フォームの自動返信を動かすには、トリガー設定で「イベントのソース：スプレッドシート（またはフォーム）」「イベントの種類：フォーム送信時」に設定します。これだけで、昼夜を問わず瞬時にお礼が届く親切な対応が完成します。</p>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+            </section>
+
+            <!-- 7. よくある質問 (FAQ) -->
+            <section id="faq" class="scroll-mt-6 space-y-8 bg-white border border-hygge-woodLight rounded-3xl p-6 md:p-10 shadow-sm font-light">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-2xl bg-hygge-accentSoft flex items-center justify-center text-hygge-accent">
+                        <i data-lucide="message-square" class="w-5 h-5"></i>
+                    </div>
+                    <div>
+                        <span class="text-xs text-hygge-gray tracking-wider uppercase">SECTION 7</span>
+                        <h2 class="text-2xl font-bold tracking-tight text-hygge-text">よくある困りごと・解決方法</h2>
+                    </div>
+                </div>
+
+                <p class="text-xs md:text-sm text-hygge-text/80 leading-relaxed font-light">
+                    プログラムを書いているときに少し立ち止まったら、このレスキューボックスを開けてみてください。
+                </p>
+
+                <!-- アコーディオン -->
+                <div class="space-y-4">
+                    
+                    <!-- Q1 -->
+                    <div class="border border-hygge-woodLight rounded-2xl overflow-hidden bg-white shadow-sm">
+                        <button onclick="toggleGasFaq('gfaq-1')" class="w-full text-left p-4 md:p-5 flex justify-between items-center text-hygge-text hover:bg-hygge-accentSoft/30 transition-hygge">
+                            <span class="font-bold text-xs md:text-sm flex items-start gap-2">
+                                <span class="text-hygge-accent">Q1.</span> エラーが出て動かなくなってしまいました。
+                            </span>
+                            <i data-lucide="chevron-down" id="gfaq-1-arrow" class="w-4 h-4 text-hygge-accent transition-transform duration-300"></i>
+                        </button>
+                        <div id="gfaq-1-content" class="hidden p-5 border-t border-hygge-woodLight bg-hygge-bg/20 text-xs md:text-sm text-hygge-text/85 font-light leading-relaxed space-y-3">
+                            <p>まずはツールバーの「📊 実行ログ」や左サイドバーの「🕐 実行履歴」に表示されている英文をそっと見つめてみましょう。よくある原因と解決方法です：</p>
+                            
+                            <div class="overflow-x-auto">
+                                <table class="w-full text-left text-xs bg-white border border-hygge-woodLight rounded-lg">
+                                    <thead>
+                                        <tr class="bg-hygge-accentSoft/40 text-hygge-text font-bold">
+                                            <th class="p-2 border-r border-b border-hygge-woodLight">表示される主なエラー</th>
+                                            <th class="p-2 border-r border-b border-hygge-woodLight">エラーが起きる原因</th>
+                                            <th class="p-2 border-b border-hygge-woodLight">やさしい解決ヒント</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td class="p-2 border-r border-b border-hygge-woodLight font-semibold">ReferenceError: xxx is not defined</td>
+                                            <td class="p-2 border-r border-b border-hygge-woodLight">変数名や関数名のスペルミス、未定義</td>
+                                            <td class="p-2 border-b border-hygge-woodLight">スペルが大文字・小文字も含めて合っているか再チェックします。</td>
+                                        </tr>
+                                        <tr>
+                                            <td class="p-2 border-r border-b border-hygge-woodLight font-semibold">TypeError: Cannot read properties of undefined</td>
+                                            <td class="p-2 border-r border-b border-hygge-woodLight">指定したファイル名、シート名が見つからない</td>
+                                            <td class="p-2 border-b border-hygge-woodLight">スプレッドシートのシート名「シート1」などが完璧に一致しているか確認します。</td>
+                                        </tr>
+                                        <tr>
+                                            <td class="p-2 border-r border-b border-hygge-woodLight font-semibold">Exception: Authorization required</td>
+                                            <td class="p-2 border-r border-b border-hygge-woodLight">Googleサービスへのアクセス権限未承認</td>
+                                            <td class="p-2 border-b border-hygge-woodLight">初回実行時に画面に出る「アクセスを承認（詳細＞安全ではないページに移動）」を許可します。</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Q2 -->
+                    <div class="border border-hygge-woodLight rounded-2xl overflow-hidden bg-white shadow-sm">
+                        <button onclick="toggleGasFaq('gfaq-2')" class="w-full text-left p-4 md:p-5 flex justify-between items-center text-hygge-text hover:bg-hygge-accentSoft/30 transition-hygge">
+                            <span class="font-bold text-xs md:text-sm flex items-start gap-2">
+                                <span class="text-hygge-accent">Q2.</span> 初めて実行するとき、セキュリティ警告の画面が出て怖いです。
+                            </span>
+                            <i data-lucide="chevron-down" id="gfaq-2-arrow" class="w-4 h-4 text-hygge-accent transition-transform duration-300"></i>
+                        </button>
+                        <div id="gfaq-2-content" class="hidden p-5 border-t border-hygge-woodLight bg-hygge-bg/20 text-xs md:text-sm text-hygge-text/85 font-light leading-relaxed space-y-2">
+                            <p><strong>ご安心ください。これは新しく作ったプログラムを認証するための正常なプロセスです。</strong></p>
+                            <p>あなたが作成した新しいスクリプトは、Googleにとって「まだ審査されていない独自のプログラム」であるため、注意のために警告画面（このアプリは確認されていません）を表示します。</p>
+                            <p><strong>【進め方】：</strong><br>
+                            「詳細」 ＞ 「〇〇（プロジェクト名）に移動（安全ではない）」をクリックし、アカウントへのアクセス要求を「許可」して進めれば、二回目からは警告が出ず正常に動作するようになります。</p>
+                        </div>
+                    </div>
+
+                    <!-- Q3 -->
+                    <div class="border border-hygge-woodLight rounded-2xl overflow-hidden bg-white shadow-sm">
+                        <button onclick="toggleGasFaq('gfaq-3')" class="w-full text-left p-4 md:p-5 flex justify-between items-center text-hygge-text hover:bg-hygge-accentSoft/30 transition-hygge">
+                            <span class="font-bold text-xs md:text-sm flex items-start gap-2">
+                                <span class="text-hygge-accent">Q3.</span> 完全に無料で動かせる範囲に限界はありますか？
+                            </span>
+                            <i data-lucide="chevron-down" id="gfaq-3-arrow" class="w-4 h-4 text-hygge-accent transition-transform duration-300"></i>
+                        </button>
+                        <div id="gfaq-3-content" class="hidden p-5 border-t border-hygge-woodLight bg-hygge-bg/20 text-xs md:text-sm text-hygge-text/85 font-light leading-relaxed space-y-2">
+                            <p>通常の個人利用・事務レベルの自動化であれば、<strong>無料枠（クォータ制限）内でゆったりと間に合うことがほとんどです。</strong>主な制限値は以下のとおりです：</p>
+                            <ul class="list-disc list-inside space-y-1">
+                                <li><strong>1日のスクリプト実行合計時間：</strong> 6時間 / 日（有料プランWorkspaceなら24時間）</li>
+                                <li><strong>1回の連続稼働の上限：</strong> 最大30分（それ以上の超長時間処理は分割する必要があります）</li>
+                                <li><strong>メール送信件数制限：</strong> 100通 / 日（Workspaceなら1,500通 / 日）</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <!-- Q4 -->
+                    <div class="border border-hygge-woodLight rounded-2xl overflow-hidden bg-white shadow-sm">
+                        <button onclick="toggleGasFaq('gfaq-4')" class="w-full text-left p-4 md:p-5 flex justify-between items-center text-hygge-text hover:bg-hygge-accentSoft/30 transition-hygge">
+                            <span class="font-bold text-xs md:text-sm flex items-start gap-2">
+                                <span class="text-hygge-accent">Q4.</span> プログラムファイルを複数に分けても、中身はちゃんと連携されますか？
+                            </span>
+                            <i data-lucide="chevron-down" id="gfaq-4-arrow" class="w-4 h-4 text-hygge-accent transition-transform duration-300"></i>
+                        </button>
+                        <div id="gfaq-4-content" class="hidden p-5 border-t border-hygge-woodLight bg-hygge-bg/20 text-xs md:text-sm text-hygge-text/85 font-light leading-relaxed space-y-1">
+                            <p><strong>はい、自動で完璧に連携されます。</strong></p>
+                            <p>GASエディタのファイルパネルで <code>main.gs</code> や <code>utilities.gs</code> のように複数ファイルに分けて格納しても、<strong>実行時にはそれらはひとつのプログラムとして結合して認識されます。</strong></p>
+                            <p>ですので、面倒なインポート命令などを書かなくても、別のファイルに書いた関数をまるで同じファイル内にあるかのようにスムーズに呼び出すことができます。</p>
+                        </div>
+                    </div>
+
+                </div>
+            </section>
+
+            <!-- 8. 学習ロードマップ & 便利なリンク -->
+            <section id="roadmap" class="scroll-mt-6 space-y-8 bg-white border border-hygge-woodLight rounded-3xl p-6 md:p-10 shadow-sm">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-2xl bg-hygge-sageLight flex items-center justify-center text-hygge-sage">
+                        <i data-lucide="map" class="w-5 h-5"></i>
+                    </div>
+                    <div>
+                        <span class="text-xs text-hygge-gray tracking-wider uppercase">SECTION 8</span>
+                        <h2 class="text-2xl font-bold tracking-tight text-hygge-text">学習ロードマップと次のステップ</h2>
+                    </div>
+                </div>
+
+                <p class="text-xs md:text-sm text-hygge-text/80 leading-relaxed font-light">
+                    一歩ずつ成長を楽しめる、初心者から中級者へ向けた穏やかなロードマップです。
+                </p>
+
+                <!-- タイムライン式ロードマップ -->
+                <div class="space-y-6 relative border-l-2 border-hygge-woodLight pl-6 ml-4">
+                    <!-- Step 1 -->
+                    <div class="relative">
+                        <span class="absolute -left-[31px] top-1.5 bg-hygge-accent w-4 h-4 rounded-full ring-4 ring-white"></span>
+                        <h4 class="font-bold text-sm text-hygge-text">初級（1〜2週間）：まず動かしてみる楽しさを知る</h4>
+                        <p class="text-xs text-hygge-text/80 leading-relaxed font-light mt-1">
+                            ・まずはスプレッドシートから拡張機能 ＞ Apps Scriptをクリック。<br>
+                            ・<code>Logger.log()</code> で文字を表示させたり、簡単な足し算を返す関数を動かして「自分で書いたものが動く楽しさ」にふれましょう。
+                        </p>
+                    </div>
+
+                    <!-- Step 2 -->
+                    <div class="relative">
+                        <span class="absolute -left-[31px] top-1.5 bg-hygge-sage w-4 h-4 rounded-full ring-4 ring-white"></span>
+                        <h4 class="font-bold text-sm text-hygge-text">中級（2〜4週間）：自動化とイベントトリガーに挑む</h4>
+                        <p class="text-xs text-hygge-text/80 leading-relaxed font-light mt-1">
+                            ・「⏱️ トリガー設定」をマスターして、時間による自動実行や、フォーム回答時の通知を動かしてみましょう。<br>
+                            ・Gmail、カレンダー、スプレッドシートのデータをスムーズに連携して書類作成の時間を削減します。
+                        </p>
+                    </div>
+
+                    <!-- Step 3 -->
+                    <div class="relative">
+                        <span class="absolute -left-[31px] top-1.5 bg-hygge-text w-4 h-4 rounded-full ring-4 ring-white"></span>
+                        <h4 class="font-bold text-sm text-hygge-text">上級（1ヶ月以上）：Webアプリや外部APIと繋ぐ</h4>
+                        <p class="text-xs text-hygge-text/80 leading-relaxed font-light mt-1">
+                            ・LINE Notify や Slack と連携して、スマホに通知を飛ばすシステムを作ります。<br>
+                            ・外部の天気予報情報や株価などのAPI情報、あるいは自社のデータベースからデータを自動収集する独自のWebサイトを作れるようになります。
+                        </p>
+                    </div>
+                </div>
+
+                <!-- 便利なリンク（北欧風リンクカード） -->
+                <div class="pt-4 border-t border-hygge-woodLight space-y-4">
+                    <h3 class="text-sm font-semibold text-hygge-text">🔗 頼れる案内所（公式リンク集）</h3>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
+                        <a href="https://developers.google.com/apps-script" target="_blank" class="p-3.5 bg-hygge-bg/50 border border-hygge-woodLight hover:border-hygge-accent rounded-xl flex items-center justify-between transition-hygge group">
+                            <div>
+                                <span class="font-bold text-hygge-text block">Google Apps Script 公式ドキュメント</span>
+                                <span class="text-[10px] text-hygge-gray">一番確実な本家のリファレンス</span>
+                            </div>
+                            <i data-lucide="arrow-up-right" class="w-4 h-4 text-hygge-accent group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform"></i>
+                        </a>
+                        <a href="https://developers.google.com/sheets/api" target="_blank" class="p-3.5 bg-hygge-bg/50 border border-hygge-woodLight hover:border-hygge-accent rounded-xl flex items-center justify-between transition-hygge group">
+                            <div>
+                                <span class="font-bold text-hygge-text block">Google Sheets API 連携ガイド</span>
+                                <span class="text-[10px] text-hygge-gray">表計算を思い通りに制御するコツ</span>
+                            </div>
+                            <i data-lucide="arrow-up-right" class="w-4 h-4 text-hygge-accent group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform"></i>
+                        </a>
+                    </div>
+                </div>
+            </section>
+
+        </div>
+    </main>
+
+    <!-- フッター -->
+    <footer class="bg-white border-t border-hygge-woodLight py-12 px-6 mt-20 text-center">
+        <div class="max-w-3xl mx-auto space-y-4">
+            <div class="inline-flex items-center justify-center p-3 bg-hygge-accentSoft text-hygge-accent rounded-full mb-2">
+                🕯️
+            </div>
+            <p class="text-sm font-semibold text-hygge-text">
+                あなたの手で、毎日のパソコン時間を美しく整えましょう。
+            </p>
+            <p class="text-xs text-hygge-gray font-light max-w-md mx-auto leading-relaxed">
+                このGAS自動化ガイドは、北欧の心やすらぐ「ヒュッゲ」の思想にそってデザインされました。
+                今日作ったささやかなプログラムが、いつかあなたに大切なゆとりの時間をもたらしますように。
+            </p>
+            <div class="pt-6 text-[10px] text-hygge-gray border-t border-hygge-woodLight/50">
+                &copy; 2026 Google Apps Script 完全ガイド (Hygge Edition). All rights reserved.
+            </div>
+        </div>
+    </footer>
+
+    <!-- JavaScript & インタラクティブ実装 -->
+    <script>
+        // Lucideアイコンの初期化
+        lucide.createIcons();
+
+        // 仮想GASエディタUIシミュレーターのホバーエリア強調
+        function highlightGasArea(id) {
+            // 全説明をいったん非表示に
+            document.getElementById('gas-desc-default').classList.add('hidden');
+            document.getElementById('gas-desc-sidebar').classList.add('hidden');
+            document.getElementById('gas-desc-files').classList.add('hidden');
+            document.getElementById('gas-desc-toolbar').classList.add('hidden');
+            document.getElementById('gas-desc-editor').classList.add('hidden');
+
+            // 該当の説明を表示
+            if (id === 'gas-sidebar') {
+                document.getElementById('gas-desc-sidebar').classList.remove('hidden');
+            } else if (id === 'gas-files') {
+                document.getElementById('gas-desc-files').classList.remove('hidden');
+            } else if (id === 'gas-toolbar') {
+                document.getElementById('gas-desc-toolbar').classList.remove('hidden');
+            } else if (id === 'gas-editor') {
+                document.getElementById('gas-desc-editor').classList.remove('hidden');
+            } else {
+                document.getElementById('gas-desc-default').classList.remove('hidden');
+            }
+        }
+
+        // 実践例タブ切り替え機能
+        function switchGasTab(tabId) {
+            // 全タブボタンをリセット
+            const buttons = document.querySelectorAll('.gas-tab-btn');
+            buttons.forEach(btn => {
+                btn.classList.remove('bg-hygge-accent', 'text-white', 'shadow-sm');
+                btn.classList.add('bg-hygge-bg', 'text-hygge-text/70');
+            });
+
+            // 全タブコンテンツを非表示に
+            const panels = document.querySelectorAll('.gas-tab-panel');
+            panels.forEach(panel => {
+                panel.classList.add('hidden');
+            });
+
+            // 選択されたボタンを強調
+            const activeBtn = document.getElementById(`tab-${tabId}`);
+            activeBtn.classList.remove('bg-hygge-bg', 'text-hygge-text/70');
+            activeBtn.classList.add('bg-hygge-accent', 'text-white', 'shadow-sm');
+
+            // 選択されたコンテンツを表示
+            const activePanel = document.getElementById(`content-${tabId}`);
+            activePanel.classList.remove('hidden');
+        }
+
+        // FAQアコーディオン機能
+        function toggleGasFaq(id) {
+            const content = document.getElementById(`${id}-content`);
+            const arrow = document.getElementById(`${id}-arrow`);
+            
+            if (content.classList.contains('hidden')) {
+                content.classList.remove('hidden');
+                arrow.classList.add('rotate-180');
+            } else {
+                content.classList.add('hidden');
+                arrow.classList.remove('rotate-180');
+            }
+        }
+
+        // モバイル用目次のトグル
+        function toggleMobileMenu() {
+            const content = document.getElementById('mobile-menu-content');
+            const arrow = document.getElementById('mobile-menu-arrow');
+            
+            if (content.classList.contains('hidden')) {
+                content.classList.remove('hidden');
+                arrow.classList.add('rotate-180');
+            } else {
+                content.classList.add('hidden');
+                arrow.classList.remove('rotate-180');
+            }
+        }
+    </script>
+</body>
+</html>
